@@ -87,14 +87,15 @@ GROUP BY iva
 
 -- Esercizio 4
 SELECT * FROM "Prodotti"
-WHERE EXTRACT(YEAR FROM data_attivazione) = 2017 AND (in_produzione = true OR in_commercio = true)
+WHERE EXTRACT(YEAR FROM data_attivazione) = 2017
+AND (in_produzione = true OR in_commercio = true)
 
 -- Esercizio 5
 SELECT * FROM "Fatture" f JOIN "Clienti" c ON f.id_cliente = c.numero_cliente
 WHERE importo < 1000
 
 -- Esercizio 6
-SELECT numero_fattura, importo, iva, data_fattura, denominazione FROM "Fatture" fa JOIN "Fornitori" fo ON fa.numero_fornitore = fo.numero_fornitore
+SELECT numero_fattura, importo, iva, data_fattura, denominazione FROM "Fatture" fa JOIN "Fornitori" USING(numero_fornitore)
 
 -- Esercizio 7
 SELECT EXTRACT(YEAR FROM data_fattura) as "anno fattura", COUNT(*) as "numero fatture" FROM "Fatture"
