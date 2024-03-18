@@ -1,0 +1,118 @@
+-- Creazione TABELLE
+
+CREATE TABLE public."Clienti"
+(
+    numero_cliente serial,
+    nome character varying NOT NULL,
+    cognome character varying NOT NULL,
+    anno_nascita integer NOT NULL,
+    regione_residenza character varying NOT NULL,
+    PRIMARY KEY (numero_cliente)
+);
+
+ALTER TABLE IF EXISTS public."Clienti"
+    OWNER to postgres;
+
+
+
+CREATE TABLE public."Prodotti"
+(
+    id_prodotto serial,
+    descrizione character varying(100) NOT NULL,
+    in_produzione boolean NOT NULL,
+    in_commercio boolean NOT NULL,
+    data_attivazione date NOT NULL,
+    data_disattivazione date NOT NULL,
+    PRIMARY KEY (id_prodotto)
+);
+
+ALTER TABLE IF EXISTS public."Prodotti"
+    OWNER to postgres;
+
+
+
+CREATE TABLE public."Fornitori"
+(
+    numero_fornitore serial,
+    denominazione character varying NOT NULL,
+    regione_residenza character varying(20) NOT NULL,
+    PRIMARY KEY (numero_fornitore)
+);
+
+ALTER TABLE IF EXISTS public."Fornitori"
+    OWNER to postgres;
+
+
+
+CREATE TABLE public."Fatture"
+(
+    numero_fattura serial,
+    tipologia character varying(10) NOT NULL,
+    importo integer NOT NULL,
+    iva integer NOT NULL,
+    data_fattura date NOT NULL,
+    id_cliente integer NOT NULL,
+    numero_fornitore integer NOT NULL,
+    PRIMARY KEY (numero_fattura),
+    CONSTRAINT fk_clienti FOREIGN KEY (id_cliente)
+        REFERENCES public."Clienti" (numero_cliente) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT fk_fornitori FOREIGN KEY (numero_fornitore)
+        REFERENCES public."Fornitori" (numero_fornitore) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+);
+
+ALTER TABLE IF EXISTS public."Fatture"
+    OWNER to postgres;
+
+
+-- Esercizio 1
+SELECT * FROM "Clienti"
+WHERE nome = 'Mario'
+
+
+-- Esercizio 2
+SELECT nome, cognome FROM "Clienti"
+WHERE anno_nascita = 1982
+
+-- Esercizio 3
+SELECT COUNT(*) AS "Numero fatture iva 20%"
+FROM "Fatture"
+WHERE iva = 20
+GROUP BY iva
+
+-- Esercizio 4
+SELECT * FROM "Prodotti"
+WHERE EXTRACT(YEAR FROM data_attivazione) = 2017 AND (in_produzione = true OR in_commercio = true)
+
+-- Esercizio 5
+SELECT * FROM "Fatture" f JOIN "Clienti" c ON f.id_cliente = c.numero_cliente
+WHERE importo < 1000
+
+-- Esercizio 6
+SELECT numero_fattura, importo, iva, data_fattura, denominazione FROM "Fatture" fa JOIN "Fornitori" fo ON fa.numero_fornitore = fo.numero_fornitore
+
+-- Esercizio 7
+SELECT EXTRACT(YEAR FROM data_fattura) as "anno fattura", COUNT(*) as "numero fatture" FROM "Fatture"
+WHERE iva = 20
+GROUP BY "anno fattura"
+
+-- Esercizio 8
+SELECT EXTRACT(YEAR FROM data_fattura) as "anno fattura", COUNT(*) as "numero fatture" FROM "Fatture"
+WHERE tipologia = 'A'
+GROUP BY "anno fattura"
+HAVING COUNT(*) > 2
+
+-- Esercizio 9
+SELECT regione_residenza, SUM(importo) as "somma importo fatture" FROM "Fatture" f JOIN "Clienti" c ON f.id_cliente = c.numero_cliente
+GROUP BY regione_residenza
+
+-- Esercizio 10
+SELECT  COUNT(*) as "numero clienti" FROM "Clienti"
+WHERE anno_nascita = 1980 AND numero_cliente IN
+(SELECT id_cliente FROM "Fatture" WHERE importo > 50)
+GROUP BY anno_nascita
