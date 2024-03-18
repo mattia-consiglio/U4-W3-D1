@@ -102,18 +102,25 @@ SELECT EXTRACT(YEAR FROM data_fattura) as "anno fattura", COUNT(*) as "numero fa
 WHERE iva = 20
 GROUP BY "anno fattura"
 
--- Esercizio 8
+--Esercizio 8
+SELECT COUNT(*) as "numero fatture", SUM(importo) AS "somma fatture"
+FROM "Fatture"
+GROUP BY EXTRACT(YEAR FROM data_fattura)
+
+-- Esercizio 9
 SELECT EXTRACT(YEAR FROM data_fattura) as "anno fattura", COUNT(*) as "numero fatture" FROM "Fatture"
 WHERE tipologia = 'A'
 GROUP BY "anno fattura"
 HAVING COUNT(*) > 2
 
--- Esercizio 9
-SELECT regione_residenza, SUM(importo) as "somma importo fatture" FROM "Fatture" f JOIN "Clienti" c ON f.id_cliente = c.numero_cliente
+-- Esercizio 10
+SELECT regione_residenza, SUM(importo) as "somma importo fatture"
+FROM "Fatture" f JOIN "Clienti" c ON f.id_cliente = c.numero_cliente
 GROUP BY regione_residenza
 
--- Esercizio 10
-SELECT  COUNT(*) as "numero clienti" FROM "Clienti"
+-- Esercizio 11
+SELECT  COUNT(*) as "numero clienti"
+FROM "Clienti"
 WHERE anno_nascita = 1980 AND numero_cliente IN
-(SELECT id_cliente FROM "Fatture" WHERE importo > 50)
+(SELECT DISTINCT id_cliente FROM "Fatture" WHERE importo > 50)
 GROUP BY anno_nascita
